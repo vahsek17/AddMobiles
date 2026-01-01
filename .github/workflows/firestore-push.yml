@@ -1,0 +1,36 @@
+name: Firestore Catalogue Upload
+
+on:
+  workflow_dispatch:   # manual trigger from GitHub UI
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Create Firestore document
+        run: |
+          curl -X POST \
+          "https://firestore.googleapis.com/v1/projects/site-9686c/databases/(default)/documents/Catalogue?documentId=Moto%20G60" \
+          -H "Authorization: Bearer ${{ steps.auth.outputs.access_token }}" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "fields": {
+              "model": { "stringValue": "Moto G60" },
+              "ram": { "stringValue": "6 GB" },
+              "storage": { "stringValue": "128 GB" },
+              "batteryCapacity": { "stringValue": "6000 mAh" },
+              "displayType": { "stringValue": "IPS LCD" },
+              "refreshRate": { "stringValue": "120 Hz" }
+            }
+          }'
