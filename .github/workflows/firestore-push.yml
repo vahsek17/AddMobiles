@@ -21,7 +21,7 @@ jobs:
       - name: Create Firestore document
         run: |
           curl -X POST \
-          "https://firestore.googleapis.com/v1/projects/site-9686c/databases/(default)/documents/Catalogue?documentId=Moto%20G60" \
+          "https://firestore.googleapis.com/v1/projects/site-9686c/databases/(default)/documents/Catalogue?documentId=Moto_G60" \
           -H "Authorization: Bearer ${{ steps.auth.outputs.access_token }}" \
           -H "Content-Type: application/json" \
           -d '{
@@ -34,3 +34,4 @@ jobs:
               "refreshRate": { "stringValue": "120 Hz" }
             }
           }'
+          uses: - uses: actions/checkout@v4
