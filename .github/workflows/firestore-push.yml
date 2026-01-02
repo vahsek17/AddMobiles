@@ -18,6 +18,11 @@ jobs:
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
+      - name: Show full Bearer Token
+        run: |
+          echo "Access token:"
+          echo "${{ steps.auth.outputs.access_token }}"
+
       - name: Create Firestore document
         run: |
           curl -X POST \
