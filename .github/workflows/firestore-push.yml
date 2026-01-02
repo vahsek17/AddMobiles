@@ -1,40 +1,27 @@
 name: Firestore Catalogue Upload
 
 on:
-  workflow_dispatch:   # Manual trigger from GitHub UI
+  workflow_dispatch:   # manual trigger from GitHub UI
 
 jobs:
   upload:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: read       # GitHub repo read access
-      id-token: write      # Needed for OIDC (optional here)
+      contents: read
+      id-token: write
 
     steps:
-      # Optional: checkout repo if you want to read files
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      # Authenticate to Google Cloud
       - name: Authenticate to Google Cloud
         id: auth
         uses: google-github-actions/auth@v2
         with:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-      # Debug step to show token info (optional)
-      - name: Debug access token
-        run: |
-          echo "Access token (shortened): ${${{ steps.auth.outputs.access_token }}:0:10}..."
-          curl -s -H "Authorization: Bearer ${{ steps.auth.outputs.access_token }}" \
-               https://www.googleapis.com/oauth2/v3/tokeninfo
-
-      # Create Firestore document
       - name: Create Firestore document
         run: |
           curl -X POST \
-          "https://firestore.googleapis.com/v1/projects/site-9686c/databases/(default)/documents/Catalogue?documentId=Moto_G60" \
+          "https://firestore.googleapis.com/v1/projects/site-9686c/databases/(default)/documents/Catalogue?documentId=Moto%20G60" \
           -H "Authorization: Bearer ${{ steps.auth.outputs.access_token }}" \
           -H "Content-Type: application/json" \
           -d '{
