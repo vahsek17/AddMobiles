@@ -22,7 +22,7 @@ jobs:
         run: |
           curl -X POST \
           "https://firestore.googleapis.com/v1/projects/site-9686c/databases/(default)/documents/Catalogue?documentId=Moto%20G60" \
-          -H "Authorization: Bearer ya29.c.c0AYnqXlgQ7U-PGoi9sErd-xRx9a5L7hVYoArFY_oLe1EJ1CAatsL1DisHikeyhXCH1R9Vwb0aNFgdR2QGeyE_RBNPW9ieKeGiSvGddXIL_i8W9ImZHMJ97qFup9-DXLmE73tMyPdekbdudm0vnvmbyOIzzNggKx8C7RgHffgE0zXfB4XXEHI2wA1LFfmXnfqZWWhnr5uXvz__1TUxTmcbFTH5H5dnwjfjoy8ydp4VnQnmJItmmYn3UdH6aX0Lpb3NxJP-afye5pFXRDFenxoAfosxBKSTR2lJB3i629PKb95kdtiEYmaseCi6yC8S-rKLYKJ4ae21rzZkzdR-Y815AzWkC67Gp-dp9CvbZIp0BCz5e35WbA61DPuo9RfVn55SARuxN397CeYxdJqMMi8gQp1vMbr34dMSg8-Ye1iQV9J2BmR6e4pn91Mh5o0Wwk0ZMaeZrZe_Uo5xkc3Z_SteZkhwojMzxeJd9JYxQ9-crwZFfJ-ntlk8pF2Wsc46t-23gySvqlyw65RY27zBUp96pBiI426sI06MV1i4Z7XgYrm2Bf1S7rugopJmehnM5lZU0JO7e-ds25tfBfjYoloJch-SZzxFcMhBio56RX5tnXwmFwm1sw_-mf81yyf8dfsvMoaWqnjwf4XMxib9skc_k1WlYXvQ-n93ytBRauyUr09Wqfq_zib7ZdWw3xpf75RFdmnaiwX4qevQU7vw9uFulbazYRUp48zonF4h7zxc67JtUtxkVlFX1nBfS_YimriO5MzFysMbjIZJ6Mc-t5X6_W45jXRJW9VFet9fc-nmW0qn5t967hz9V-J_Fm5xq_5qvl6nlW40kr_xx8rhQaeUjjdi5-arV1ZrhgI7oSWaOYInjo4bkmF8VasYaFjfXi08vRFRZeYgfoeaptoVBqjoMB46oxIazjYi_58wJOfrfUU7iq0lXQOVwJg-tXIeFoZ7WWds-RMW6-pY_qaW_9OuSZsqsxtUrlm6-e42ifq_rwl0auUl_B00k42" \
+          -H "Authorization: Bearer ${{ steps.auth.outputs.access_token }}" \
           -H "Content-Type: application/json" \
           -d '{
             "fields": {
