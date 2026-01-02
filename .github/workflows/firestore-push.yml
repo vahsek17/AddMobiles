@@ -27,10 +27,13 @@ jobs:
           -d '{
             "fields": {
               "model": { "stringValue": "Moto G60" },
+              "brand": { "stringValue": "Motorola" },
               "ram": { "stringValue": "6 GB" },
               "storage": { "stringValue": "128 GB" },
               "batteryCapacity": { "stringValue": "6000 mAh" },
               "displayType": { "stringValue": "IPS LCD" },
-              "refreshRate": { "stringValue": "120 Hz" }
+              "refreshRate": { "stringValue": "120 Hz" },
+              "chipset": { "stringValue": "Snapdragon 732G" },
+              "operatingSystem": { "stringValue": "Android" }
             }
           }'
