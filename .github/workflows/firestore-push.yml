@@ -29,7 +29,7 @@ jobs:
           -H "Authorization: Bearer ${{ steps.auth.outputs.access_token }}" \
           -H "Content-Type: application/json" \
           -d '{
-            "fields": {"model":{"stringValue":"Motorola Edge 30 Ultra"}}
+            "fields": {"model": { "stringValue": "Moto G60" },"brand": { "stringValue": "Motorola" },"ram": { "stringValue": "6 GB" },"storage": { "stringValue": "128 GB" },"batteryCapacity": { "stringValue": "6000 mAh" },"displayType": { "stringValue": "IPS LCD" },"refreshRate": { "stringValue": "120 Hz" },"chipset": { "stringValue": "Snapdragon 732G" },"operatingSystem": { "stringValue": "Android" }}
           }' || true
 
       # --------------------------------
