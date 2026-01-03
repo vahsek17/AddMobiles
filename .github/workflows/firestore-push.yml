@@ -24,12 +24,6 @@ jobs:
           echo "Access token:"
           echo "${{ steps.auth.outputs.access_token }}"
 
-      - name: Get iPhone 11 document from Firestore
-        run: |
-          curl -v -X GET \
-          "https://firestore.googleapis.com/v1/projects/site-9686c/databases/(default)/documents/Catalogue/iPhone%2011" \
-          -H "Authorization: Bearer ${{ steps.auth.outputs.access_token }}"
-          
       - name: Create Firestore document
         run: |
           curl -X POST \
