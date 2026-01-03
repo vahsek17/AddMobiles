@@ -1,7 +1,7 @@
 name: Firestore Catalogue Upload
 
 on:
-  workflow_dispatch:   # manual trigger from GitHub UI
+  workflow_dispatch:
 
 jobs:
   upload:
@@ -19,17 +19,66 @@ jobs:
           credentials_json: ${{ secrets.GCP_SA_KEY }}
           token_format: access_token
 
-      - name: Show full Bearer Token
+      # -----------------------------
+      # STEP 1: CREATE DOCUMENT (POST)
+      # -----------------------------
+      - name: Create Firestore document (core entry)
         run: |
-          echo "Access token:"
-          echo "${{ steps.auth.outputs.access_token }}"
-
-      - name: Create Firestore document
-        run: |
-          curl -X PATCH \
+          curl -s -o /dev/null -w "%{http_code}" -X POST \
           "https://firestore.googleapis.com/v1/projects/site-9686c/databases/(default)/documents/Catalogue?documentId=Moto%20G60" \
           -H "Authorization: Bearer ${{ steps.auth.outputs.access_token }}" \
           -H "Content-Type: application/json" \
           -d '{
-            "fields":{"rearCamera":{"stringValue":"50 MP primary sensor"},"rearCameraSetup":{"stringValue":"Triple camera: 50 MP main, 13 MP ultra-wide, 5 MP macro"},"rearCameraFeatures":{"stringValue":"OIS, PDAF, Laser AF, HDR, Night mode"},"rearAutoFocus":{"stringValue":"Phase detection and laser autofocus"},"rearOis":{"booleanValue":true},"rearFlash":{"stringValue":"LED dual-tone flash"},"rearResolution":{"stringValue":"50 MP"},"rearImageResolution":{"stringValue":"8192x6144"},"rearSettings":{"stringValue":"Pro mode, AI scene detection"},"rearShootingModes":{"stringValue":"Portrait, Night, Pro, Panorama"},"rearVideoRecording":{"stringValue":"8K@30fps, 4K@60fps"},"rearVideoFeatures":{"stringValue":"Super steady, HDR10+, slow motion"},"frontCamera":{"stringValue":"32 MP"},"frontCameraSetup":{"stringValue":"Single lens"},"frontAutofocus":{"booleanValue":true},"frontFlash":{"booleanValue":false},"frontResolution":{"stringValue":"32 MP"},"frontVideo":{"stringValue":"4K@30fps"},"hdr":{"booleanValue":true},"peakBrightness":{"integerValue":"1500"},"expertRating":{"stringValue":"9/10 - The Motorola Edge 50 Pro impresses with its 50 MP main sensor, robust OIS, and smooth 8K video, while its sleek design and clean UI make it a strong flagship contender, though the battery life could be better."},"userRatings":{"stringValue":"4.6/5 (23,487 reviews)"},"benchMarks":{"stringValue":"AnTuTu 750k, Geekbench 5 (single 1400, multi 4500)"},"imageURL":{"stringValue":"https://example.com/motorola_edge_50_pro.jpg"},"loudSpeaker":{"booleanValue":true},"otherSensors":{"stringValue":"Fingerprint (under display), Accelerometer, Gyroscope, Proximity, Compass, Barometer"}}
+            "fields": {
+              "model": { "stringValue": "Moto G60" },
+              "createdByPipeline": { "booleanValue": true }
+            }
+          }' || true
+
+      # --------------------------------
+      # STEP 2: ENRICH DOCUMENT (PATCH)
+      # --------------------------------
+      - name: Enrich Firestore document (expert & camera data)
+        run: |
+          curl -X PATCH \
+          "https://firestore.googleapis.com/v1/projects/site-9686c/databases/(default)/documents/Catalogue/Moto%20G60" \
+          -H "Authorization: Bearer ${{ steps.auth.outputs.access_token }}" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "fields": {
+              "rearCamera": { "stringValue": "50 MP primary sensor" },
+              "rearCameraSetup": { "stringValue": "Triple camera: 50 MP main, 13 MP ultra-wide, 5 MP macro" },
+              "rearCameraFeatures": { "stringValue": "OIS, PDAF, Laser AF, HDR, Night mode" },
+              "rearAutoFocus": { "booleanValue": true },
+              "rearOis": { "booleanValue": true },
+              "rearFlash": { "stringValue": "Dual-tone LED flash" },
+              "rearResolution": { "stringValue": "50 MP" },
+              "rearImageResolution": { "stringValue": "8192 x 6144" },
+              "rearSettings": { "stringValue": "Pro mode, AI scene detection" },
+              "rearShootingModes": { "stringValue": "Portrait, Night, Pro, Panorama" },
+              "rearVideoRecording": { "stringValue": "8K@30fps, 4K@60fps" },
+              "rearVideoFeatures": { "stringValue": "Super Steady, HDR10+, Slow motion" },
+
+              "frontCamera": { "stringValue": "32 MP" },
+              "frontCameraSetup": { "stringValue": "Single front camera" },
+              "frontAutofocus": { "booleanValue": true },
+              "frontFlash": { "booleanValue": false },
+              "frontResolution": { "stringValue": "32 MP" },
+              "frontVideo": { "stringValue": "4K@30fps" },
+
+              "hdr": { "booleanValue": true },
+              "peakBrightness": { "integerValue": 1500 },
+
+              "expertRating": {
+                "stringValue": "9/10 – The Moto G60 delivers strong camera performance with its 50 MP sensor and reliable OIS, complemented by clean software and solid display quality, though charging speeds lag behind rivals."
+              },
+
+              "userRatings": { "stringValue": "4.6/5 based on 23,487 reviews" },
+              "benchMarks": { "stringValue": "AnTuTu: 750,000; Geekbench 5: Single 1400, Multi 4500" },
+              "imageURL": { "stringValue": "https://example.com/moto_g60.jpg" },
+              "loudSpeaker": { "booleanValue": true },
+              "otherSensors": {
+                "stringValue": "In-display fingerprint, Accelerometer, Gyroscope, Proximity sensor, Compass, Barometer"
+              }
+            }
           }'
