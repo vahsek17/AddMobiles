@@ -29,7 +29,7 @@ jobs:
           -H "Authorization: Bearer ${{ steps.auth.outputs.access_token }}" \
           -H "Content-Type: application/json" \
           -d '{
-            "fields": {"model":{"stringValue":"Motorola Edge 30 Ultra"},"architecture":{"stringValue":"64-bit, Qualcomm Snapdragon 8+ Gen 1"},"aspectRatio":{"stringValue":"20:9"},"audioFeatures":{"stringValue":"24-bit/192kHz audio, Dolby Atmos"},"audioJack":{"stringValue":"No"},"availableStorage":{"stringValue":"128GB, 256GB, 512GB"},"battery":{"stringValue":"Spec Score: 92%"},"batteryCapacity":{"stringValue":"4610mAh"},"batteryRemovable":{"stringValue":"No"},"batteryTalkTime":{"stringValue":"Up to 36 Hours (4G)"},"batteryType":{"stringValue":"Li-Po"},"benchMarks":{"stringValue":"Geekbench: 1344 (single-core), 4281 (multi-core), AnTuTu: 1023211"},"bezelLessDisplay":{"stringValue":"Punch-hole"},"bluetooth":{"stringValue":"V5.2"},"chipset":{"stringValue":"Qualcomm Snapdragon 8+ Gen 1"},"colours":{"stringValue":"Interstellar Black, Starlight White, Aurora Green"},"comparePrices":{"stringValue":"INR 54,999"}}}
+            "fields": {"model":{"stringValue":"Motorola Edge 30 Ultra"},"architecture":{"stringValue":"64-bit, Qualcomm Snapdragon 8+ Gen 1"}}
           }' || true
 
       # --------------------------------
