@@ -25,7 +25,7 @@ jobs:
       - name: Create Firestore document (core entry)
         run: |
           curl -s -o /dev/null -w "%{http_code}" -X POST \
-          "https://firestore.googleapis.com/v1/projects/site-9686c/databases/(default)/documents/Catalogue?documentId=Moto4270" \
+          "https://firestore.googleapis.com/v1/projects/site-9686c/databases/(default)/documents/Catalogue?documentId=Moto420" \
           -H "Authorization: Bearer ${{ steps.auth.outputs.access_token }}" \
           -H "Content-Type: application/json" \
           -d '{
