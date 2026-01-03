@@ -26,7 +26,7 @@ jobs:
 
       - name: Create Firestore document
         run: |
-          curl -X PUT \
+          curl -X PATCH \
           "https://firestore.googleapis.com/v1/projects/site-9686c/databases/(default)/documents/Catalogue?documentId=Moto%20G60" \
           -H "Authorization: Bearer ${{ steps.auth.outputs.access_token }}" \
           -H "Content-Type: application/json" \
