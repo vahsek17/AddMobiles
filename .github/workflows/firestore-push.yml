@@ -35,47 +35,4 @@ jobs:
       # --------------------------------
       # STEP 2: ENRICH DOCUMENT (PATCH)
       # --------------------------------
-      - name: Enrich Firestore document (expert & camera data)
-        run: |
-          curl -X PATCH \
-          "https://firestore.googleapis.com/v1/projects/site-9686c/databases/(default)/documents/Catalogue/Moto%20G60" \
-          -H "Authorization: Bearer ${{ steps.auth.outputs.access_token }}" \
-          -H "Content-Type: application/json" \
-          -d '{
-            "fields": {
-              "rearCamera": { "stringValue": "50 MP primary sensor" },
-              "rearCameraSetup": { "stringValue": "Triple camera: 50 MP main, 13 MP ultra-wide, 5 MP macro" },
-              "rearCameraFeatures": { "stringValue": "OIS, PDAF, Laser AF, HDR, Night mode" },
-              "rearAutoFocus": { "booleanValue": true },
-              "rearOis": { "booleanValue": true },
-              "rearFlash": { "stringValue": "Dual-tone LED flash" },
-              "rearResolution": { "stringValue": "50 MP" },
-              "rearImageResolution": { "stringValue": "8192 x 6144" },
-              "rearSettings": { "stringValue": "Pro mode, AI scene detection" },
-              "rearShootingModes": { "stringValue": "Portrait, Night, Pro, Panorama" },
-              "rearVideoRecording": { "stringValue": "8K@30fps, 4K@60fps" },
-              "rearVideoFeatures": { "stringValue": "Super Steady, HDR10+, Slow motion" },
-
-              "frontCamera": { "stringValue": "32 MP" },
-              "frontCameraSetup": { "stringValue": "Single front camera" },
-              "frontAutofocus": { "booleanValue": true },
-              "frontFlash": { "booleanValue": false },
-              "frontResolution": { "stringValue": "32 MP" },
-              "frontVideo": { "stringValue": "4K@30fps" },
-
-              "hdr": { "booleanValue": true },
-              "peakBrightness": { "integerValue": 1500 },
-
-              "expertRating": {
-                "stringValue": "9/10 – The Moto G60 delivers strong camera performance with its 50 MP sensor and reliable OIS, complemented by clean software and solid display quality, though charging speeds lag behind rivals."
-              },
-
-              "userRatings": { "stringValue": "4.6/5 based on 23,487 reviews" },
-              "benchMarks": { "stringValue": "AnTuTu: 750,000; Geekbench 5: Single 1400, Multi 4500" },
-              "imageURL": { "stringValue": "https://example.com/moto_g60.jpg" },
-              "loudSpeaker": { "booleanValue": true },
-              "otherSensors": {
-                "stringValue": "In-display fingerprint, Accelerometer, Gyroscope, Proximity sensor, Compass, Barometer"
-              }
-            }
-          }'
+      
