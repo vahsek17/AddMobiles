@@ -27,8 +27,6 @@ jobs:
               ]
             }')
 
-          echo "$RESPONSE_1"
-          echo ""
           echo "===== CALL 1: MODEL CONTENT ONLY ====="
           echo "$RESPONSE_1" | jq -r '.choices[0].message.content'
 
