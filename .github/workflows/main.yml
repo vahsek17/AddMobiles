@@ -1,10 +1,10 @@
-name: Groq Debug – Stepwise Output
+name: Groq Firestore Payload Generator (2-Step Merge)
 
 on:
   workflow_dispatch:
 
 jobs:
-  groq-debug:
+  groq-pipeline:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,8 +26,11 @@ jobs:
               ]
             }')
 
-          echo "===== CALL 1: MODEL CONTENT ONLY ====="
-          echo "$RESPONSE_1" | jq -r '.choices[0].message.content'
+          echo "$RESPONSE_1" \
+            | jq -r '.choices[0].message.content | fromjson' > base.json
+
+          echo "===== BASE JSON ====="
+          cat base.json
 
       # -----------------------------
       # STEP 2: ENRICHMENT CALL
@@ -47,5 +50,22 @@ jobs:
               ]
             }')
 
-          echo "===== CALL 2: MODEL CONTENT ONLY ====="
-          echo "$RESPONSE_2" | jq -r '.choices[0].message.content'
+          echo "$RESPONSE_2" \
+            | jq -r '.choices[0].message.content | fromjson' > enrich.json
+
+          echo "===== ENRICHMENT JSON ====="
+          cat enrich.json
+
+      # -----------------------------
+      # STEP 3: MERGE & PRINT FINAL
+      # -----------------------------
+      - name: Merge base + enrichment JSON
+        run: |
+          jq -s '
+            {
+              fields: (.[0].fields + .[1].fields)
+            }
+          ' base.json enrich.json > merged.json
+
+          echo "===== FINAL MERGED FIRESTORE JSON ====="
+          cat merged.json
