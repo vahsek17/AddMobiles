@@ -13,7 +13,6 @@ jobs:
       # -----------------------------
       - name: Groq Call 1 – Base catalogue
         run: |
-          echo "===== CALL 1: RAW RESPONSE ====="
           RESPONSE_1=$(curl -s -X POST "https://api.groq.com/openai/v1/chat/completions" \
             -H "Authorization: Bearer ${{ secrets.GROQ_API_KEY }}" \
             -H "Content-Type: application/json" \
@@ -35,7 +34,6 @@ jobs:
       # -----------------------------
       - name: Groq Call 2 – Enrichment data
         run: |
-          echo "===== CALL 2: RAW RESPONSE ====="
           RESPONSE_2=$(curl -s -X POST "https://api.groq.com/openai/v1/chat/completions" \
             -H "Authorization: Bearer ${{ secrets.GROQ_API_KEY }}" \
             -H "Content-Type: application/json" \
@@ -49,7 +47,5 @@ jobs:
               ]
             }')
 
-          echo "$RESPONSE_2"
-          echo ""
           echo "===== CALL 2: MODEL CONTENT ONLY ====="
           echo "$RESPONSE_2" | jq -r '.choices[0].message.content'
