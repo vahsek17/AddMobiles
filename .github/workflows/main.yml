@@ -69,3 +69,8 @@ jobs:
 
           echo "===== FINAL MERGED FIRESTORE JSON ====="
           cat merged.json
+      - name: Upload Firestore payload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: firestore-payload
+          path: mobileData.json
