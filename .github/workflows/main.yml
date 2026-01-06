@@ -8,9 +8,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Call Groq Chat Completions API
+      - name: Call Groq API and print pure Firestore JSON only
         run: |
-          curl -X POST "https://api.groq.com/openai/v1/chat/completions" \
+          RESPONSE=$(curl -s -X POST "https://api.groq.com/openai/v1/chat/completions" \
             -H "Authorization: Bearer ${{ secrets.GROQ_API_KEY }}" \
             -H "Content-Type: application/json" \
             -d '{
@@ -21,4 +21,7 @@ jobs:
                   "content": "STRICT_MODE=TRUE; generate Motorola’s latest widely released smartphone as STRICT valid Firestore REST JSON ONLY; output exactly ONE JSON object in ONE single paragraph with NO line breaks; the ROOT object MUST contain ONLY the key '\''fields'\''; inside '\''fields'\'', EVERY attribute MUST be an object with a single key '\''stringValue'\''; DO NOT output raw strings; DO NOT use booleanValue, integerValue, or doubleValue; ALL values must be descriptive mobile-catalogue-style strings; include ONLY the following keys in this EXACT ORDER and NEVER omit, rename, repeat, or reorder them: model,architecture,aspectRatio,audioFeatures,audioJack,availableStorage,battery,batteryCapacity,batteryRemovable,batteryTalkTime,batteryType,benchMarks,bezelLessDisplay,bluetooth,chipset,colours,comparePrices,cpu,customUi,dimensions,displayType,expandable,fingerprintType,fingerprintPosition,fingerprintSensor,fmRadio,frontAutofocus,frontCamera,frontCameraSetup,frontFlash,frontResolution,frontVideo,gps,graphics,hdr,imageURL,internalMemory,launchDate,loudSpeaker,material,networkSupport,nfc,operatingSystem,otg,otherSensors,peakBrightness,performance,pixelDensity,priceList,quickCharging,ram,rearAutoFocus,rearCamera,rearCameraFeatures,rearCameraSetup,rearFlash,rearImageResolution,rearOis,rearResolution,rearSettings,rearShootingModes,rearVideoFeatures,rearVideoRecording,refreshRate,resolution,ruggedness,sar,screenProtection,screenSize,screenToBodyRatio,simSize,simSlot,stereoSpeakers,storage,touchScreen,usbConnectivity,usbType,userRatings,voLte,waterproofing,weight,wifi,wifiFeatures"
                 }
               ]
-            }'
+            }')
+
+          # Print ONLY the decoded content (no metadata, no escaping)
+          echo "$RESPONSE" | jq -r '.choices[0].message.content'
