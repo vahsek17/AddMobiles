@@ -1,20 +1,20 @@
-name: Groq Firestore Payload Generator
+name: Groq Debug – Stepwise Output
 
 on:
   workflow_dispatch:
 
 jobs:
-  groq-call:
+  groq-debug:
     runs-on: ubuntu-latest
 
     steps:
-      # -------------------------------------------------
-      # STEP 1: Base catalogue attributes
-      # -------------------------------------------------
-      - name: Groq Call 1 – Base catalogue data
-        id: groq_step_1
+      # -----------------------------
+      # STEP 1: BASE CATALOGUE CALL
+      # -----------------------------
+      - name: Groq Call 1 – Base catalogue
         run: |
-          BASE_RESPONSE=$(curl -s -X POST "https://api.groq.com/openai/v1/chat/completions" \
+          echo "===== CALL 1: RAW RESPONSE ====="
+          RESPONSE_1=$(curl -s -X POST "https://api.groq.com/openai/v1/chat/completions" \
             -H "Authorization: Bearer ${{ secrets.GROQ_API_KEY }}" \
             -H "Content-Type: application/json" \
             -d '{
@@ -22,21 +22,23 @@ jobs:
               "messages": [
                 {
                   "role": "user",
-                  "content": "STRICT_MODE=TRUE; generate Motorola’s latest widely released smartphone as STRICT valid Firestore REST JSON ONLY; output exactly ONE JSON object in ONE single paragraph with NO line breaks; the ROOT object MUST contain ONLY the key '\''fields'\''; inside '\''fields'\'', EVERY attribute MUST be an object with a single key '\''stringValue'\''; DO NOT output raw strings; DO NOT use booleanValue, integerValue, or doubleValue; ALL values must be descriptive mobile-catalogue-style strings; include ONLY the following keys in this EXACT ORDER and NEVER omit, rename, repeat, or reorder them: model,architecture,aspectRatio,audioFeatures,audioJack,availableStorage,battery,batteryCapacity,batteryRemovable,batteryTalkTime,batteryType,benchMarks,bezelLessDisplay,bluetooth,chipset,colours,comparePrices,cpu,customUi,dimensions,displayType,expandable,fingerprintType,fingerprintPosition,fingerprintSensor,fmRadio,frontAutofocus,frontCamera,frontCameraSetup,frontFlash,frontResolution,frontVideo,gps,graphics,hdr,imageURL,internalMemory,launchDate,loudSpeaker,material,networkSupport,nfc,operatingSystem,otg,otherSensors,peakBrightness,performance,pixelDensity,priceList,quickCharging,ram,rearAutoFocus,rearCamera,rearCameraFeatures,rearCameraSetup,rearFlash,rearImageResolution,rearOis,rearResolution,rearSettings,rearShootingModes,rearVideoFeatures,rearVideoRecording,refreshRate,resolution,ruggedness,sar,screenProtection,screenSize,screenToBodyRatio,simSize,simSlot,stereoSpeakers,storage,touchScreen,usbConnectivity,usbType,voLte,waterproofing,weight,wifi,wifiFeatures"
+                  "content": "STRICT_MODE=TRUE; generate Motorola’s latest widely released smartphone as STRICT valid Firestore REST JSON ONLY; output exactly ONE JSON object in ONE single paragraph with NO line breaks; the ROOT object MUST contain ONLY the key '\''fields'\''; inside '\''fields'\'', EVERY attribute MUST be an object with a single key '\''stringValue'\''; DO NOT output raw strings; DO NOT use booleanValue, integerValue, or doubleValue"
                 }
               ]
             }')
 
-          # Extract and store only the Firestore JSON
-          echo "$BASE_RESPONSE" | jq -r '.choices[0].message.content' > base.json
+          echo "$RESPONSE_1"
+          echo ""
+          echo "===== CALL 1: MODEL CONTENT ONLY ====="
+          echo "$RESPONSE_1" | jq -r '.choices[0].message.content'
 
-      # -------------------------------------------------
-      # STEP 2: Enrichment attributes
-      # -------------------------------------------------
+      # -----------------------------
+      # STEP 2: ENRICHMENT CALL
+      # -----------------------------
       - name: Groq Call 2 – Enrichment data
-        id: groq_step_2
         run: |
-          ENRICH_RESPONSE=$(curl -s -X POST "https://api.groq.com/openai/v1/chat/completions" \
+          echo "===== CALL 2: RAW RESPONSE ====="
+          RESPONSE_2=$(curl -s -X POST "https://api.groq.com/openai/v1/chat/completions" \
             -H "Authorization: Bearer ${{ secrets.GROQ_API_KEY }}" \
             -H "Content-Type: application/json" \
             -d '{
@@ -44,32 +46,12 @@ jobs:
               "messages": [
                 {
                   "role": "user",
-                  "content": "STRICT_MODE=TRUE; generate Firestore REST JSON ONLY for Motorola Edge 50 Pro enrichment data, exactly ONE JSON object in ONE single paragraph with NO line breaks, with ROOT key '\''fields'\''; EVERY field MUST use google.firestore.v1.Value wrappers with stringValue ONLY; include ONLY the following keys in this EXACT ORDER: expertRating, sim1, sim2, userRatings; expertRating MUST contain rating out of 10 PLUS a concise expert review under 180 words; userRatings MUST be out of 5 with a realistic review count under 50000; NEVER omit or repeat keys; estimate values if unsure; return ONLY the final Firestore-compatible JSON object."
+                  "content": "STRICT_MODE=TRUE; generate Firestore REST JSON ONLY for Motorola Edge 50 Pro enrichment data; output exactly ONE JSON object in ONE single paragraph with NO line breaks; ROOT key '\''fields'\''; include ONLY the following keys in this EXACT ORDER: expertRating, sim1, sim2, userRatings; expertRating MUST include rating out of 10 plus a concise expert review under 180 words; userRatings MUST be out of 5 with realistic count under 50000"
                 }
               ]
             }')
 
-          # Extract and store enrichment JSON
-          echo "$ENRICH_RESPONSE" | jq -r '.choices[0].message.content' > enrich.json
-
-      # -------------------------------------------------
-      # STEP 3: Merge both JSONs (fields + fields)
-      # -------------------------------------------------
-      - name: Merge base and enrichment data
-        run: |
-          jq -n '
-            {
-              fields:
-                (input.fields + input.fields)
-            }
-          ' base.json enrich.json > final.json
-
-      # -------------------------------------------------
-      # STEP 4: Print final merged Firestore JSON
-      # -------------------------------------------------
-      - name: Print final Firestore JSON
-        run: |
-          echo "----------------------------------------"
-          echo "FINAL MERGED FIRESTORE JSON:"
-          echo "----------------------------------------"
-          cat final.json
+          echo "$RESPONSE_2"
+          echo ""
+          echo "===== CALL 2: MODEL CONTENT ONLY ====="
+          echo "$RESPONSE_2" | jq -r '.choices[0].message.content'
