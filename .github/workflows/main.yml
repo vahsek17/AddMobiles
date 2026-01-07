@@ -1,4 +1,4 @@
-name: Groq Firestore Payload Generator (2-Step Merge)
+name: Fetch Groq & Upload to FireStore
 
 on:
   workflow_dispatch:
@@ -69,8 +69,25 @@ jobs:
 
           echo "===== FINAL MERGED FIRESTORE JSON ====="
           cat mobileData.json
-      - name: Upload Firestore payload artifact
-        uses: actions/upload-artifact@v4
+     
+      # -----------------------------
+      # STEP 1: AUTHENTICATE GCP
+      # -----------------------------
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
         with:
-          name: firestore-payload
-          path: mobileData.json
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          token_format: access_token
+
+      # -----------------------------
+      # STEP 2: CREATE FIRESTORE DOCUMENT
+      # -----------------------------
+      - name: Upload to Firestore
+        run: |
+          curl -s -w "\nHTTP %{http_code}\n" \
+            -X PATCH \
+            "https://firestore.googleapis.com/v1/projects/site-9686c/databases/(default)/documents/Catalogue/Moto422" \
+            -H "Authorization: Bearer ${{ steps.auth.outputs.access_token }}" \
+            -H "Content-Type: application/json" \
+            --data-binary @mobileData.json
