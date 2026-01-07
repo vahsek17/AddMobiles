@@ -2,6 +2,11 @@ name: Firestore Catalogue Upload
 
 on:
   workflow_dispatch:
+  workflow_run:
+    workflows:
+      - Groq Firestore Payload Generator (2-Step Merge)
+    types:
+      - completed
 
 jobs:
   upload:
@@ -12,6 +17,27 @@ jobs:
       id-token: write
 
     steps:
+      # -----------------------------
+      # STEP 0: DOWNLOAD ARTIFACT
+      # -----------------------------
+      - name: Download Firestore payload artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: firestore-payload
+          path: payload
+
+      - name: Verify payload
+        run: |
+          echo "===== PAYLOAD FILE ====="
+          ls -l payload
+          echo
+          echo "===== mobileData.json ====="
+          cat payload/mobileData.json
+          jq empty payload/mobileData.json
+
+      # -----------------------------
+      # STEP 1: AUTHENTICATE GCP
+      # -----------------------------
       - name: Authenticate to Google Cloud
         id: auth
         uses: google-github-actions/auth@v2
@@ -20,19 +46,12 @@ jobs:
           token_format: access_token
 
       # -----------------------------
-      # STEP 1: CREATE DOCUMENT (POST)
+      # STEP 2: CREATE FIRESTORE DOCUMENT
       # -----------------------------
-      - name: Create Firestore document (core entry)
+      - name: Create Firestore document
         run: |
-          curl -s -o /dev/null -w "%{http_code}" -X POST \
-          "https://firestore.googleapis.com/v1/projects/site-9686c/databases/(default)/documents/Catalogue?documentId=Moto422" \
-          -H "Authorization: Bearer ${{ steps.auth.outputs.access_token }}" \
-          -H "Content-Type: application/json" \
-          -d '{
-            "fields":{"model":{"stringValue":"Motorola Edge 50 Pro"},"architecture":{"stringValue":"64-bit, Qualcomm Snapdragon 8 Gen 2, 4nm"},"aspectRatio":{"stringValue":"20:9"},"audioFeatures":{"stringValue":"Dolby Atmos, 24-bit\/48kHz audio, stereo speakers"},"audioJack":{"stringValue":"No"},"availableStorage":{"stringValue":"128GB, 256GB, 512GB"},"battery":{"stringValue":"Spec Score: 92%"},"batteryCapacity":{"stringValue":"5000 mAh"},"batteryRemovable":{"stringValue":"No"},"batteryTalkTime":{"stringValue":"Up to 28 Hours (4G)"},"batteryType":{"stringValue":"Li-Po"},"benchMarks":{"stringValue":"AnTuTu 950k (Snapdragon 8 Gen 2), Geekbench 6.0 Single 1800, Multi 7200"},"bezelLessDisplay":{"stringValue":"Punch-hole camera design"},"bluetooth":{"stringValue":"Bluetooth 5.3"},"chipset":{"stringValue":"Qualcomm Snapdragon 8 Gen 2"},"colours":{"stringValue":"Phantom Black, Ocean Blue, Sunset Red"},"comparePrices":{"stringValue":"INR 79,999"},"cpu":{"stringValue":"Octa core (3.2 GHz Cortex-X3, 2.8 GHz Cortex-A715, 2.0 GHz Cortex-A510), Spec Score: 94%"},"customUi":{"stringValue":"Motorola UI 5.0"},"dimensions":{"stringValue":"162.9 x 75.5 x 8.4 mm"},"displayType":{"stringValue":"OLED, HDR10+"},"expandable":{"stringValue":"No"},"fingerprintType":{"stringValue":"Optical"},"fingerprintPosition":{"stringValue":"Under display"},"fingerprintSensor":{"stringValue":"Yes"},"fmRadio":{"stringValue":"No"},"frontAutofocus":{"stringValue":"Yes, PDAF"},"frontCamera":{"stringValue":"Spec Score: 88%"},"frontCameraSetup":{"stringValue":"Single camera 50 MP, Spec Score: 88%"},"frontFlash":{"stringValue":"Yes"},"frontResolution":{"stringValue":"50 MP f\/2.0, Wide Angle"},"frontVideo":{"stringValue":"4K@30fps, 1080p@60fps"},"gps":{"stringValue":"Yes with A-GPS, GLONASS, BDS"},"graphics":{"stringValue":"Adreno 750"},"hdr":{"stringValue":"Yes"},"imageURL":{"stringValue":"https:\/\/example.com\/motorola_edge_50_pro.jpg"},"internalMemory":{"stringValue":"128, 256, 512"},"launchDate":{"stringValue":"October 2024"},"loudSpeaker":{"stringValue":"Yes (Stereo speakers with Dolby Atmos)"},"material":{"stringValue":"Aluminum frame, Gorilla Glass Victus 2 front and back"},"networkSupport":{"stringValue":"5G, 4G, VoLTE, 3G, 2G"},"nfc":{"stringValue":"Present"},"operatingSystem":{"stringValue":"Android 14, 3 years OS updates, 4 years security updates"},"otg":{"stringValue":"Yes"},"otherSensors":{"stringValue":"Proximity, Accelerometer, Gyroscope, Compass, Barometer, Heart Rate"},"peakBrightness":{"stringValue":"1500 nits"},"performance":{"stringValue":"Snapdragon 8 Gen 2, Spec Score: 94%"},"pixelDensity":{"stringValue":"450 ppi"},"priceList":{"stringValue":"Amazon INR 79,999, Flipkart INR 78,999, Motorola Store INR 80,499"},"quickCharging":{"stringValue":"65W Fast Charging, 100% in 45 mins"},"ram":{"stringValue":"8GB, 12GB LPDDR5, Spec Score: 92%"},"rearAutoFocus":{"stringValue":"Yes"},"rearCamera":{"stringValue":"Spec Score: 94%"},"rearCameraFeatures":{"stringValue":"Auto flash, Face detection, Touch to Focus, OIS"},"rearCameraSetup":{"stringValue":"Quad camera 108 MP (f\/1.8) + 12 MP ultra-wide (f\/2.2) + 10 MP telephoto (3x, f\/2.4) + 10 MP periscope (5x, f\/2.8), Spec Score: 94%"},"rearFlash":{"stringValue":"Yes, LED"},"rearImageResolution":{"stringValue":"108 MP, 12 MP, 10 MP, 10 MP"},"rearOis":{"stringValue":"Yes"},"rearResolution":{"stringValue":"108 MP f\/1.8, Wide Angle, Primary Camera"},"rearSettings":{"stringValue":"Pro mode, Night mode, Super Resolution"},"rearShootingModes":{"stringValue":"Continuous Shooting, HDR, Night mode, Portrait"},"rearVideoFeatures":{"stringValue":"Dual Video Recording, Slow-motion, Time-lapse, HDR video"},"rearVideoRecording":{"stringValue":"4K@60fps, 1080p@240fps, 720p@480fps"},"refreshRate":{"stringValue":"120Hz, 90Hz, 60Hz adaptive"},"resolution":{"stringValue":"1440 x 3200 pixels"},"ruggedness":{"stringValue":"IP68 water and dust resistance"},"sar":{"stringValue":"Head: 0.99 W\/kg, Body: 1.02 W\/kg"},"screenProtection":{"stringValue":"Corning Gorilla Glass Victus 2"},"voLte":{"stringValue":"Yes"},"waterproofing":{"stringValue":"Yes, IP68, Covered under warranty"},"weight":{"stringValue":"210 grams"},"wifi":{"stringValue":"Wi-Fi 6E, 802.11 a\/b\/g\/n\/ac\/ax, 2.4GHz & 5GHz & 6GHz"},"wifiFeatures":{"stringValue":"Mobile Hotspot, Wi-Fi Direct, Wi-Fi Easy Connect"},"expertRating":{"stringValue":"9.0\/10 - The Motorola Edge 50 Pro offers a premium OLED display with excellent color accuracy, a smooth 120Hz refresh rate, and a robust Snapdragon 8+ Gen 1 chipset that handles gaming and multitasking effortlessly. Its camera system, anchored by a 50MP main sensor, delivers sharp, vibrant photos in good lighting, though low\u2011light performance lags behind flagships. Battery life is solid, and the 65W fast charging tops off quickly. Software is near\u2011stock with useful Motorola additions. Overall, it balances performance, design, and price, making it a strong contender in the high\u2011midrange segment."},"sim1":{"stringValue":"5G Bands: FDD N78\/N77\/N79, TDD N28; 4G Bands: LTE B1\/B3\/B5\/B7\/B8\/B20\/B28\/B38\/B40\/B41\/B66; 3G Bands: UMTS 850\/900\/2100 MHz; 2G Bands: GSM 850\/900\/1800\/1900 MHz, GPRS: Available, EDGE: Available"},"sim2":{"stringValue":"5G Bands: FDD N78\/N77\/N79, TDD N28; 4G Bands: LTE B1\/B3\/B5\/B7\/B8\/B20\/B28\/B38\/B40\/B41\/B66; 3G Bands: UMTS 850\/900\/2100 MHz; 2G Bands: GSM 850\/900\/1800\/1900 MHz, GPRS: Available, EDGE: Available"},"screenSize":{"stringValue":"6.7 inches"},"screenToBodyRatio":{"stringValue":"92.5%"},"simSize":{"stringValue":"Nano"},"simSlot":{"stringValue":"Dual SIM (Nano)"},"stereoSpeakers":{"stringValue":"Yes"},"storage":{"stringValue":"Spec Score: 88%"},"touchScreen":{"stringValue":"Capacitive Touchscreen, Multi-touch"},"usbConnectivity":{"stringValue":"Type C 3.2 (10 Gbps)"},"usbType":{"stringValue":"Type C to Type C"},"userRatings":{"stringValue":"4.4\/5 (23,487 reviews)"}}
-          }' || true
-
-      # --------------------------------
-      # STEP 2: ENRICH DOCUMENT (PATCH)
-      # --------------------------------
-      
+          curl -s -w "\nHTTP %{http_code}\n" -X POST \
+            "https://firestore.googleapis.com/v1/projects/site-9686c/databases/(default)/documents/Catalogue?documentId=Moto422" \
+            -H "Authorization: Bearer ${{ steps.auth.outputs.access_token }}" \
+            -H "Content-Type: application/json" \
+            --data-binary @payload/mobileData.json
