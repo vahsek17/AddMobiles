@@ -87,7 +87,7 @@ jobs:
         run: |
           curl -s -w "\nHTTP %{http_code}\n" \
             -X PATCH \
-            "https://firestore.googleapis.com/v1/projects/site-9686c/databases/(default)/documents/Catalogue/Moto422" \
+            "https://firestore.googleapis.com/v1/projects/site-9686c/databases/(default)/documents/Catalogue/Moto423" \
             -H "Authorization: Bearer ${{ steps.auth.outputs.access_token }}" \
             -H "Content-Type: application/json" \
             --data-binary @mobileData.json
