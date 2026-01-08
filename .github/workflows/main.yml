@@ -17,7 +17,7 @@ jobs:
             -H "Authorization: Bearer ${{ secrets.GROQ_API_KEY }}" \
             -H "Content-Type: application/json" \
             -d '{
-              "model": "openai/gpt-oss-120b",
+              "model": "groq/compound-mini",
               "messages": [
                 {
                   "role": "user",
