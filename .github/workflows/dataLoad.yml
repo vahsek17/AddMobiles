@@ -1,0 +1,42 @@
+name: CSV Data Loader
+
+on:
+  workflow_dispatch:
+
+jobs:
+  process-csv:
+    runs-on: ubuntu-latest
+
+    steps:
+      # -----------------------------
+      # STEP 1: BASE CATALOGUE CALL
+      # -----------------------------
+      - name: Read first CSV entry and delete it
+        run: |
+          echo "==== Reading first entry from CSV ===="
+
+          FIRST_ENTRY=$(awk 'NR==2 {print; exit}' dataLoad.csv)
+
+          if [ -z "$FIRST_ENTRY" ]; then
+            echo "CSV has no data rows left"
+            exit 0
+          fi
+
+          echo "First mobile entry:"
+          echo "$FIRST_ENTRY"
+
+          echo "==== Deleting first entry from CSV ===="
+          awk 'NR==1 || NR>2' dataLoad.csv > dataLoad.tmp
+          mv dataLoad.tmp dataLoad.csv
+
+          echo "==== Updated CSV ===="
+          cat dataLoad.csv
+
+      - name: Commit updated CSV
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git add dataLoad.csv
+          git commit -m "Remove processed CSV entry" || echo "No changes to commit"
+          git push
