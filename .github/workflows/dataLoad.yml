@@ -21,7 +21,7 @@ jobs:
         run: |
           echo "==== Reading first entry from CSV ===="
 
-          FIRST_ENTRY=$(awk 'NR==2 {print; exit}' dataLoad.csv)
+          FIRST_ENTRY=$(awk 'NR==2 {print; exit}' toBeAdded.csv)
 
           if [ -z "$FIRST_ENTRY" ]; then
             echo "CSV has no data rows left"
@@ -32,16 +32,16 @@ jobs:
           echo "$FIRST_ENTRY"
 
           echo "==== Deleting first entry from CSV ===="
-          awk 'NR==1 || NR>2' dataLoad.csv > dataLoad.tmp
-          mv dataLoad.tmp dataLoad.csv
+          awk 'NR==1 || NR>2' toBeAdded.csv > toBeAdded.tmp
+          mv toBeAdded.tmp toBeAdded.csv
 
           echo "==== Updated CSV ===="
-          cat dataLoad.csv
+          cat toBeAdded.csv
 
       - name: Commit updated CSV
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add dataLoad.csv
+          git add toBeAdded.csv
           git commit -m "Remove processed CSV entry" || echo "No changes to commit"
           git push
