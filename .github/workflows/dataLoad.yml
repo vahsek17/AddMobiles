@@ -8,9 +8,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
+      # -----------------------------
+      # STEP 1: BASE CATALOGUE CALL
+      # -----------------------------
       - name: Read first CSV entry and delete it
         run: |
           echo "==== Reading first entry from CSV ===="
