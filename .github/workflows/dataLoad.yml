@@ -1,6 +1,6 @@
 name: CSV Data Loader
 
-on:
+"on":
   workflow_dispatch:
 
 jobs:
