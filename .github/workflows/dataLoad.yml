@@ -3,40 +3,62 @@ name: CSV Data Loader
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
-  process-csv:
+  read:
+    name: Read first CSV entry
     runs-on: ubuntu-latest
-
+    outputs:
+      first_entry: ${{ steps.read.outputs.first_entry }}
     steps:
-      # -----------------------------
-      # STEP 1: BASE CATALOGUE CALL
-      # -----------------------------
-      - name: Read first CSV entry and delete it
+      - uses: actions/checkout@v4
+
+      - id: read
         run: |
-          echo "==== Reading first entry from CSV ===="
-
-          FIRST_ENTRY=$(awk 'NR==2 {print; exit}' dataLoad.csv)
-
+          FIRST_ENTRY=$(awk 'NR==2 {print; exit}' toBeAdded.csv)
           if [ -z "$FIRST_ENTRY" ]; then
-            echo "CSV has no data rows left"
             exit 0
           fi
+          echo "first_entry<<EOF" >> $GITHUB_OUTPUT
+          echo "$FIRST_ENTRY" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
-          echo "First mobile entry:"
-          echo "$FIRST_ENTRY"
+  delete:
+    name: Delete first CSV entry
+    runs-on: ubuntu-latest
+    needs: read
+    if: needs.read.outputs.first_entry != ''
+    steps:
+      - uses: actions/checkout@v4
 
-          echo "==== Deleting first entry from CSV ===="
-          awk 'NR==1 || NR>2' dataLoad.csv > dataLoad.tmp
-          mv dataLoad.tmp dataLoad.csv
+      - run: |
+          awk 'NR==1 || NR>2' toBeAdded.csv > toBeAdded.tmp
+          mv toBeAdded.tmp toBeAdded.csv
 
-          echo "==== Updated CSV ===="
-          cat dataLoad.csv
+  add:
+    name: Add entry to added.csv
+    runs-on: ubuntu-latest
+    needs: [read, delete]
+    if: needs.read.outputs.first_entry != ''
+    steps:
+      - uses: actions/checkout@v4
 
-      - name: Commit updated CSV
+      - run: |
+          ENTRY="${{ needs.read.outputs.first_entry }}"
+
+          if [ -f added.csv ]; then
+            printf "%s\n%s" "$ENTRY" "$(cat added.csv)" > added.tmp
+            mv added.tmp added.csv
+          else
+            echo "$ENTRY" > added.csv
+          fi
+
+      - name: Commit changes
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-
-          git add dataLoad.csv
-          git commit -m "Remove processed CSV entry" || echo "No changes to commit"
+          git add toBeAdded.csv added.csv
+          git commit -m "Move CSV entry from toBeAdded.csv to added.csv" || exit 0
           git push
