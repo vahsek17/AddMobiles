@@ -1,0 +1,136 @@
+name: CSV → Groq → Firestore Pipeline
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  process:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # --------------------------------
+      # STEP 1: READ SECOND CSV ENTRY
+      # --------------------------------
+      - name: Read mobile from CSV
+        id: csv
+        run: |
+          MOBILE=$(awk 'NR==2 {print; exit}' toBeAdded.csv)
+
+          if [ -z "$MOBILE" ]; then
+            echo "No entries left."
+            exit 1
+          fi
+
+          echo "mobile=$MOBILE" >> $GITHUB_OUTPUT
+
+      # --------------------------------
+      # STEP 2: GROQ CALL 1 (DYNAMIC)
+      # --------------------------------
+      - name: Groq Call 1 – Base catalogue
+        run: |
+          MOBILE="${{ steps.csv.outputs.mobile }}"
+
+          RESPONSE_1=$(curl -s -X POST https://api.groq.com/openai/v1/chat/completions \
+            -H "Authorization: Bearer ${{ secrets.GROQ_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"model\": \"groq/compound-mini\",
+              \"messages\": [
+                {
+                  \"role\": \"user\",
+                  \"content\": \"STRICT_MODE=TRUE; Search carefully and generate Firestore REST JSON ONLY for ${MOBILE}; return ONLY one JSON object with root key fields.\"
+                }
+              ]
+            }")
+
+          echo "$RESPONSE_1" | jq -r '.choices[0].message.content | fromjson' > base.json
+
+      # --------------------------------
+      # STEP 3: GROQ CALL 2 (DYNAMIC)
+      # --------------------------------
+      - name: Groq Call 2 – Enrichment
+        run: |
+          MOBILE="${{ steps.csv.outputs.mobile }}"
+
+          RESPONSE_2=$(curl -s -X POST https://api.groq.com/openai/v1/chat/completions \
+            -H "Authorization: Bearer ${{ secrets.GROQ_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"model\": \"groq/compound-mini\",
+              \"messages\": [
+                {
+                  \"role\": \"user\",
+                  \"content\": \"STRICT_MODE=TRUE; generate enrichment Firestore REST JSON ONLY for ${MOBILE}; return ONLY one JSON object with root key fields.\"
+                }
+              ]
+            }")
+
+          echo "$RESPONSE_2" | jq -r '.choices[0].message.content | fromjson' > enrich.json
+
+      # --------------------------------
+      # STEP 4: MERGE JSON
+      # --------------------------------
+      - name: Merge JSON
+        run: |
+          jq -s '{ fields: (.[0].fields + .[1].fields) }' base.json enrich.json > mobileData.json
+
+      # --------------------------------
+      # STEP 5: AUTHENTICATE GCP
+      # --------------------------------
+      - name: Authenticate to Google Cloud
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+          token_format: access_token
+
+      # --------------------------------
+      # STEP 6: UPLOAD TO FIRESTORE
+      # --------------------------------
+      - name: Upload to Firestore
+        run: |
+          DOC_ID=$(echo "${{ steps.csv.outputs.mobile }}" | tr ' ' '_' )
+
+          curl -s -X PATCH \
+            "https://firestore.googleapis.com/v1/projects/site-9686c/databases/(default)/documents/Catalogue/${DOC_ID}" \
+            -H "Authorization: Bearer ${{ steps.auth.outputs.access_token }}" \
+            -H "Content-Type: application/json" \
+            --data-binary @mobileData.json
+
+      # --------------------------------
+      # STEP 7: REMOVE FROM toBeAdded.csv
+      # --------------------------------
+      - name: Remove processed entry
+        run: |
+          awk 'NR==1 || NR>2' toBeAdded.csv > temp.csv
+          mv temp.csv toBeAdded.csv
+
+      # --------------------------------
+      # STEP 8: ADD TO added.csv (TOP)
+      # --------------------------------
+      - name: Add to added.csv
+        run: |
+          ENTRY="${{ steps.csv.outputs.mobile }}"
+
+          if [ -f added.csv ]; then
+            printf "%s\n%s" "$ENTRY" "$(cat added.csv)" > temp.csv
+            mv temp.csv added.csv
+          else
+            echo "$ENTRY" > added.csv
+          fi
+
+      # --------------------------------
+      # STEP 9: COMMIT CHANGES
+      # --------------------------------
+      - name: Commit CSV updates
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add toBeAdded.csv added.csv
+          git commit -m "Processed ${{ steps.csv.outputs.mobile }}" || exit 0
+          git push
