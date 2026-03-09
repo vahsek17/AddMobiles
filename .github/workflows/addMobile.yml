@@ -107,9 +107,12 @@ jobs:
       # -----------------------------
       - name: Upload to Firestore
         run: |
+          MOBILE="${{ steps.csv.outputs.mobile }}"
+          DOC_ID=$(echo "$MOBILE" | sed 's/ /%20/g')
+
           curl -s -w "\nHTTP %{http_code}\n" \
             -X PATCH \
-            "https://firestore.googleapis.com/v1/projects/site-9686c/databases/(default)/documents/Catalogue/${{ steps.csv.outputs.mobile }}" \
+            "https://firestore.googleapis.com/v1/projects/site-9686c/databases/(default)/documents/Catalogue/$DOC_ID" \
             -H "Authorization: Bearer ${{ steps.auth.outputs.access_token }}" \
             -H "Content-Type: application/json" \
             --data-binary @mobileData.json
