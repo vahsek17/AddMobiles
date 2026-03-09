@@ -27,6 +27,13 @@ jobs:
           fi
 
           echo "mobile=$MOBILE" >> $GITHUB_OUTPUT
+          
+      - name: Display fetched mobile
+        run: |
+          echo "======================================"
+          echo "Mobile fetched from CSV:"
+          echo "${{ steps.csv.outputs.mobile }}"
+          echo "======================================"
 
       # --------------------------------
       # STEP 2: GROQ CALL 1 (DYNAMIC) ${MOBILE}, 
