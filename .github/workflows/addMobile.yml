@@ -19,7 +19,7 @@ jobs:
       - name: Read mobile from CSV
         id: csv
         run: |
-          MOBILE=$(awk 'NR==2 {print; exit}' toBeAdded.csv)
+          MOBILE=$(awk 'NR==2 {print; exit}' toBeAdded_${{ github.ref_name }}.csv)
 
           if [ -z "$MOBILE" ]; then
             echo "No entries left."
