@@ -118,12 +118,12 @@ jobs:
             --data-binary @mobileData.json
 
       # --------------------------------
-      # STEP 7: REMOVE FROM toBeAdded.csv
+      # STEP 7: REMOVE FROM toBeAdded_dev.csv or toBeAdded_main.csv
       # --------------------------------
       - name: Remove processed entry
         run: |
-          awk 'NR==1 || NR>2' toBeAdded.csv > temp.csv
-          mv temp.csv toBeAdded.csv
+          awk 'NR==1 || NR>2' toBeAdded_${{ github.ref_name }}.csv > temp.csv
+          mv temp.csv toBeAdded_${{ github.ref_name }}.csv
 
       # --------------------------------
       # STEP 8: ADD TO added.csv (TOP)
@@ -132,11 +132,11 @@ jobs:
         run: |
           ENTRY="${{ steps.csv.outputs.mobile }}"
 
-          if [ -f added.csv ]; then
-            printf "%s\n%s" "$ENTRY" "$(cat added.csv)" > temp.csv
-            mv temp.csv added.csv
+          if [ -f added_${{ github.ref_name }}.csv ]; then
+            printf "%s\n%s" "$ENTRY" "$(cat added_${{ github.ref_name }}.csv)" > temp.csv
+            mv temp.csv added_${{ github.ref_name }}.csv
           else
-            echo "$ENTRY" > added.csv
+            echo "$ENTRY" > added_${{ github.ref_name }}.csv
           fi
 
       # --------------------------------
@@ -146,6 +146,6 @@ jobs:
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add toBeAdded.csv added.csv
+          git add toBeAdded_${{ github.ref_name }}.csv added_${{ github.ref_name }}.csv
           git commit -m "Processed ${{ steps.csv.outputs.mobile }}" || exit 0
           git push
