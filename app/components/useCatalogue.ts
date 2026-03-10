@@ -10,7 +10,10 @@ export function useCatalogue() {
   useEffect(() => {
     const load = async () => {
       try {
-        const snap = await getDocs(collection(db, "Catalogue"));
+        const branch = process.env.NODE_ENV === "production" ? "main" : "dev";
+        const snap = await getDocs(collection(db, branch));
+        //Catalogue, dev, or main - here catalogue has the older mobile data, but the main & dev are the databases of prod & dev environments respectively
+        
         setItems(snap.docs.map(d => d.data()));
       } catch (err) {
         console.error("Error fetching catalogue:", err);
