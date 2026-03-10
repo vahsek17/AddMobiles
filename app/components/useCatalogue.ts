@@ -10,8 +10,9 @@ export function useCatalogue() {
   useEffect(() => {
     const load = async () => {
       try {
-        const branch = process.env.NODE_ENV === "production" ? "main" : "dev";
-        const snap = await getDocs(collection(db, branch));
+        const database = process.env.NODE_ENV === "production" ? "main" : "dev";  //our database names are same as the branch 
+        //main branch would make changes to main/prod database, and dev branch would make changes to dev database
+        const snap = await getDocs(collection(db, database));
         //Catalogue, dev, or main - here catalogue has the older mobile data, but the main & dev are the databases of prod & dev environments respectively
         
         setItems(snap.docs.map(d => d.data()));
