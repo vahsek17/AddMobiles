@@ -44,8 +44,9 @@ jobs:
       # -----------------------------
       # GROQ TRANSFORMATION
       # -----------------------------
-      - name: Groq Call 1 – Base catalogue
+      - name: Groq Call
         run: |
+          DATA=$(jq -c . scraped.json)
           RESPONSE_1=$(curl -s -X POST "https://api.groq.com/openai/v1/chat/completions" \
             -H "Authorization: Bearer ${{ secrets.GROQ_API_KEY }}" \
             -H "Content-Type: application/json" \
@@ -54,7 +55,7 @@ jobs:
               "messages": [
                 {
                   "role": "user",
-                    "content": "Return back in capital${{ steps.scraper.outputs }}"
+                    "content": "Return back in capital $DATA"
                 }
               ]
             }')
