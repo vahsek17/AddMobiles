@@ -1,4 +1,4 @@
-name: Scrape Phone Specs
+name: PyScrape->GroqAI->Firebase
 
 on:
   workflow_dispatch:
