@@ -1,4 +1,4 @@
-name: CSV → Groq → Firestore Pipeline
+name: Groq->Firebase
 
 on:
   workflow_dispatch:
