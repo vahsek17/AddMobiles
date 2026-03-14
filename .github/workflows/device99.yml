@@ -58,7 +58,7 @@ jobs:
               "messages": [
                 {
                   "role": "user",
-                    \"content\": \"STRICT_MODE=TRUE; Convert the given smartphone specification into Firestore REST API compatible JSON. Use ROOT key 'fields'. Every field must use google.firestore.v1.Value wrapper using stringValue. Do NOT remove information, reorganize it logically into fields like model, display, cpu, battery, ram, storage, rearCamera, frontCamera, connectivity etc. Also add a short dynamic signature sentence at the end of 'expertRating' so the content does not appear copied. Return ONLY valid Firestore JSON. Input data: $DATA"
+                    \"content\": \"write a poem on a donkey, should end with 'and that is me'"
                 }
               ]
             }')
