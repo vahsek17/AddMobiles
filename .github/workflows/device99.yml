@@ -45,23 +45,25 @@ jobs:
       # -----------------------------
       - name: Groq Transform
         run: |
-
           SCRAPED=$(jq -c . scraped.json)
-
-          RESPONSE=$(curl -s https://api.groq.com/openai/v1/chat/completions \
+          RESPONSE_1=$(curl -s -X POST "https://api.groq.com/openai/v1/chat/completions" \
             -H "Authorization: Bearer ${{ secrets.GROQ_API_KEY }}" \
             -H "Content-Type: application/json" \
-            -d "{
-              \"model\": \"groq/compound-mini\",
-              \"messages\": [
+            -d '{
+              "model": "groq/compound-mini",
+              "messages": [
                 {
-                  \"role\": \"user\",
-                  \"content\": \"STRICT_MODE=TRUE; Convert the following smartphone specification JSON into Firestore REST API compatible JSON. Use ROOT key 'fields'. Every field must use google.firestore.v1.Value wrapper using stringValue. Do NOT remove information, reorganize it logically into fields like model, display, cpu, battery, ram, storage, rearCamera, frontCamera, connectivity etc. Also add a short dynamic signature sentence at the end of 'expertRating' so the content does not appear copied. Return ONLY valid Firestore JSON. Input data: $SCRAPED\"
+                  "role": "user",
+                    \"content\": \"STRICT_MODE=TRUE; Convert the following smartphone specification JSON into Firestore REST API compatible JSON. Use ROOT key 'fields'. Every field must use google.firestore.v1.Value wrapper using stringValue. Do NOT remove information, reorganize it logically into fields like model, display, cpu, battery, ram, storage, rearCamera, frontCamera, connectivity etc. Also add a short dynamic signature sentence at the end of 'expertRating' so the content does not appear copied. Return ONLY valid Firestore JSON. Input data: $SCRAPED\"
                 }
               ]
-            }")
+            }')
+          echo "$RESPONSE_1"
+          echo "$RESPONSE_1" \
+            | jq -r '.choices[0].message.content | fromjson' > base.json
 
-          echo "$RESPONSE" | jq -r '.choices[0].message.content | fromjson' > mobileData.json
+          echo "===== BASE JSON ====="
+          cat base.json
 
           echo "===== TRANSFORMED FIRESTORE JSON ====="
           cat mobileData.json
