@@ -39,7 +39,7 @@ jobs:
           python app/components/scraper.py "${{ github.event.inputs.specs_url }}" > scraped.json
 
           echo "===== SCRAPED DATA ====="
-          cat scraped.json >> $GITHUB_OUTPUT
+          cat scraped.json
 
       # -----------------------------
       # GROQ TRANSFORMATION
