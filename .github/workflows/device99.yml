@@ -54,16 +54,11 @@ jobs:
               "messages": [
                 {
                   "role": "user",
-                    \"content\": \"STRICT_MODE=TRUE; Convert the following smartphone specification JSON into Firestore REST API compatible JSON. Use ROOT key 'fields'. Every field must use google.firestore.v1.Value wrapper using stringValue. Do NOT remove information, reorganize it logically into fields like model, display, cpu, battery, ram, storage, rearCamera, frontCamera, connectivity etc. Also add a short dynamic signature sentence at the end of 'expertRating' so the content does not appear copied. Return ONLY valid Firestore JSON. Input data: $SCRAPED\"
+                    \"content\": \"STRICT_MODE=TRUE; Convert the given smartphone specification into Firestore REST API compatible JSON. Use ROOT key 'fields'. Every field must use google.firestore.v1.Value wrapper using stringValue. Do NOT remove information, reorganize it logically into fields like model, display, cpu, battery, ram, storage, rearCamera, frontCamera, connectivity etc. Also add a short dynamic signature sentence at the end of 'expertRating' so the content does not appear copied. Return ONLY valid Firestore JSON. Input data: $SCRAPED\"
                 }
               ]
             }')
-          echo "$RESPONSE_1"
-          echo "$RESPONSE_1" \
-            | jq -r '.choices[0].message.content | fromjson' > base.json
-
-          echo "===== BASE JSON ====="
-          cat base.json
+          eecho "$RESPONSE" | jq -r '.choices[0].message.content | fromjson' > mobileData.json
 
           echo "===== TRANSFORMED FIRESTORE JSON ====="
           cat mobileData.json
