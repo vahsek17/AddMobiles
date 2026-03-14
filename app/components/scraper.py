@@ -34,7 +34,7 @@ def extract_specs(url):
 
     scraper = cloudscraper.create_scraper()
 
-    # warmup request to establish cookies
+    # warmup request
     scraper.get("https://www.91mobiles.com")
 
     response = scraper.get(url)
@@ -42,16 +42,12 @@ def extract_specs(url):
 
     tree = html.fromstring(response.content)
 
-    container_xpath = "/html/body/main/div[2]/section[2]/section"
-    containers = tree.xpath(container_xpath)
-
-    if not containers:
-        print("Container not found")
-        return
-
-    container = containers[0]
+    container = tree.xpath("/html/body/main/div[2]/section[2]/section")[0]
 
     final_data = {}
+
+    current_sim = None
+    last_key = None
 
     for section_name in TARGET_SECTIONS:
 
@@ -60,11 +56,7 @@ def extract_specs(url):
         if not section:
             continue
 
-        section = section[0]
-
-        rows = section.xpath(".//tr")
-
-        last_key = None
+        rows = section[0].xpath(".//tr")
 
         for row in rows:
 
@@ -76,7 +68,6 @@ def extract_specs(url):
             key = clean_text(cells[0].text_content())
             value = clean_text(cells[1].text_content())
 
-            # handle nested rows where key column is empty
             if key == "":
                 key = last_key
 
@@ -86,14 +77,38 @@ def extract_specs(url):
             if not key or not value:
                 continue
 
-            # camera naming requirement
+            # detect SIM context
+            if key == "SIM 1":
+                current_sim = "Sim1"
+                final_data["SIM 1"] = value
+                continue
+
+            if key == "SIM 2":
+                current_sim = "Sim2"
+                final_data["SIM 2"] = value
+                continue
+
+            # rename band keys inside SIM blocks
+            if current_sim and "5G bands" in key:
+                key = f"{current_sim}_5G_Band"
+
+            elif current_sim and "4G bands" in key:
+                key = f"{current_sim}_4G_Band"
+
+            elif current_sim and "3G bands" in key:
+                key = f"{current_sim}_3G_Band"
+
+            elif current_sim and "2G bands" in key:
+                key = f"{current_sim}_2G_Band"
+
+            # camera naming rule
             if section_name == "Rear Camera":
                 key = f"rearCamera_{key}"
 
             if section_name == "Front Camera":
                 key = f"frontCamera_{key}"
 
-            # avoid overwriting duplicate attributes
+            # avoid overwriting
             if key in final_data:
                 final_data[key] += " | " + value
             else:
