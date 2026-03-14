@@ -34,11 +34,12 @@ jobs:
       # RUN SCRAPER
       # -----------------------------
       - name: Run scraper
+        id: scraper
         run: |
           python app/components/scraper.py "${{ github.event.inputs.specs_url }}" > scraped.json
 
           echo "===== SCRAPED DATA ====="
-          cat scraped.json
+          cat scraped.json >> $GITHUB_OUTPUT
 
       # -----------------------------
       # GROQ TRANSFORMATION
@@ -53,7 +54,7 @@ jobs:
               "messages": [
                 {
                   "role": "user",
-                    "content": "Write a poem on donkey and that should end with - and that donkey is me"
+                    "content": "Return back in capital${{ steps.scraper.outputs }}"
                 }
               ]
             }')
