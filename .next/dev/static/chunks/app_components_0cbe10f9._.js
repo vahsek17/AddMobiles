@@ -53,8 +53,9 @@ function useCatalogue() {
             const load = {
                 "useCatalogue.useEffect.load": async ()=>{
                     try {
-                        const branch = ("TURBOPACK compile-time falsy", 0) ? "TURBOPACK unreachable" : "dev";
-                        const snap = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$firestore$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getDocs"])((0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$firestore$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["collection"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$components$2f$firebase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["db"], branch));
+                        const database = ("TURBOPACK compile-time falsy", 0) ? "TURBOPACK unreachable" : "dev"; //our database names are same as the branch 
+                        //main branch would make changes to main/prod database, and dev branch would make changes to dev database
+                        const snap = await (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$firestore$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getDocs"])((0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$firebase$2f$firestore$2f$dist$2f$index$2e$esm$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["collection"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$components$2f$firebase$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["db"], database));
                         //Catalogue, dev, or main - here catalogue has the older mobile data, but the main & dev are the databases of prod & dev environments respectively
                         setItems(snap.docs.map({
                             "useCatalogue.useEffect.load": (d)=>d.data()
