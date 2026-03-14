@@ -69,7 +69,7 @@ jobs:
             -d "$REQUEST")
   
           echo "$RESPONSE_1" \
-            | jq -r '.choices[0].message.content > mobileData.json
+            | jq -r '.choices[0].message.content' > mobileData.json
 
           echo "===== BASE JSON ====="
           cat mobileData.json
