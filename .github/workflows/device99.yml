@@ -58,7 +58,7 @@ jobs:
               "messages": [
                 {
                   "role": "user",
-                    \"content\": \"write a poem on a donkey, should end with 'and that is me'"
+                    \"content\": \"write a poem on a donkey, should end with and that is me"
                 }
               ]
             }')
