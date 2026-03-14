@@ -46,6 +46,10 @@ jobs:
       - name: Groq Transform
         run: |
           SCRAPED=$(jq -c . scraped.json)
+          DATA=$(jq -c . scraped.json)
+          echo "===== INPUT TO GROQ ====="
+          echo "$DATA"
+          
           RESPONSE_1=$(curl -s -X POST "https://api.groq.com/openai/v1/chat/completions" \
             -H "Authorization: Bearer ${{ secrets.GROQ_API_KEY }}" \
             -H "Content-Type: application/json" \
@@ -54,7 +58,7 @@ jobs:
               "messages": [
                 {
                   "role": "user",
-                    \"content\": \"STRICT_MODE=TRUE; Convert the given smartphone specification into Firestore REST API compatible JSON. Use ROOT key 'fields'. Every field must use google.firestore.v1.Value wrapper using stringValue. Do NOT remove information, reorganize it logically into fields like model, display, cpu, battery, ram, storage, rearCamera, frontCamera, connectivity etc. Also add a short dynamic signature sentence at the end of 'expertRating' so the content does not appear copied. Return ONLY valid Firestore JSON. Input data: $SCRAPED\"
+                    \"content\": \"STRICT_MODE=TRUE; Convert the given smartphone specification into Firestore REST API compatible JSON. Use ROOT key 'fields'. Every field must use google.firestore.v1.Value wrapper using stringValue. Do NOT remove information, reorganize it logically into fields like model, display, cpu, battery, ram, storage, rearCamera, frontCamera, connectivity etc. Also add a short dynamic signature sentence at the end of 'expertRating' so the content does not appear copied. Return ONLY valid Firestore JSON. Input data: $DATA"
                 }
               ]
             }')
