@@ -50,25 +50,32 @@ jobs:
           cat scraped.json
           echo "------------------"
           DATA=$(cat scraped.json)
+
+          REQUEST=$(jq -n \
+          --arg data "$DATA" \
+          '{
+            model: "groq/compound-mini",
+            messages: [
+              {
+                role: "user",
+                content: ("Return back in capital:\n" + $data)
+              }
+            ]
+          }')
+
           RESPONSE_1=$(curl -s -X POST "https://api.groq.com/openai/v1/chat/completions" \
             -H "Authorization: Bearer ${{ secrets.GROQ_API_KEY }}" \
             -H "Content-Type: application/json" \
-            -d '{
-              "model": "groq/compound-mini",
-              "messages": [
-                {
-                  "role": "user",
-                    "content": "Return back in capital $DATA"
-                }
-              ]
-            }')
+            -d "$REQUEST")
   
           echo "$RESPONSE_1" \
-            | jq -r '.choices[0].message.content | fromjson' > mobileData.json
+            | jq -r '.choices[0].message.content > mobileData.json
 
           echo "===== BASE JSON ====="
           cat mobileData.json
+      
 
+          
       # -----------------------------
       # AUTHENTICATE GCP
       # -----------------------------
