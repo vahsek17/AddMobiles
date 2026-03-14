@@ -1,4 +1,4 @@
-name: PyScraper->Groq->Firebase
+name: Scrape Phone Specs
 
 on:
   workflow_dispatch:
@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -23,7 +24,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install requests lxml
+          pip install cloudscraper lxml
 
       - name: Run scraper
         run: |
