@@ -1,4 +1,4 @@
-import requests
+import cloudscraper
 from lxml import html
 import json
 import sys
@@ -18,38 +18,41 @@ TARGET_SECTIONS = [
     "Sensors"
 ]
 
+
 def extract_specs(url):
 
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                      "(KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.9",
-        "Referer": "https://www.google.com/",
-        "Connection": "keep-alive",
-        "Upgrade-Insecure-Requests": "1"
-    }
+    scraper = cloudscraper.create_scraper()
 
-    session = requests.Session()
-    response = session.get(url, headers=headers, timeout=20)
+    # warmup request (important for some sites)
+    scraper.get("https://www.91mobiles.com")
+
+    response = scraper.get(url)
     response.raise_for_status()
 
     tree = html.fromstring(response.content)
 
     container_xpath = "/html/body/main/div[2]/section[2]/section"
-    container = tree.xpath(container_xpath)[0]
+    containers = tree.xpath(container_xpath)
+
+    if not containers:
+        print("Container not found")
+        return
+
+    container = containers[0]
 
     final_data = {}
 
     for section_name in TARGET_SECTIONS:
 
         section = container.xpath(f'.//section[@id="{section_name}"]')
+
         if not section:
             continue
 
         rows = section[0].xpath(".//tr")
 
         for row in rows:
+
             cells = row.xpath("./th | ./td")
 
             if len(cells) >= 2:
@@ -69,5 +72,10 @@ def extract_specs(url):
 
 
 if __name__ == "__main__":
+
+    if len(sys.argv) < 2:
+        print("Usage: python scraper.py <URL>")
+        sys.exit(1)
+
     url = sys.argv[1]
     extract_specs(url)
