@@ -57,12 +57,12 @@ jobs:
                 }
               ]
             }')
-          echo "$RESPONSE_1"
+  
           echo "$RESPONSE_1" \
-            | jq -r '.choices[0].message.content | fromjson' > base.json
+            | jq -r '.choices[0].message.content | fromjson' > mobileData.json
 
           echo "===== BASE JSON ====="
-          cat base.json
+          cat mobileData.json
 
       # -----------------------------
       # AUTHENTICATE GCP
