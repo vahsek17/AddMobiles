@@ -14,6 +14,9 @@ Internally the app resolves the environment like this:
 ```
 development → dev
 production → main
+
+If you want to push the device info into the dev database, run the pipeline with 'dev' branch, for Production, run with main branch
+If you want the UI to render the Dev devices, execute npm run dev - If you want the UI to render the Prod Devices, Execute npm run build & npm start
 ```
 
 ---
