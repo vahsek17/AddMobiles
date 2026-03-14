@@ -21,34 +21,35 @@ TARGET_SECTIONS = [
 def extract_specs(url):
 
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-        "Accept-Language": "en-US,en;q=0.9"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                      "(KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Referer": "https://www.google.com/",
+        "Connection": "keep-alive",
+        "Upgrade-Insecure-Requests": "1"
     }
 
-    response = requests.get(url, headers=headers, timeout=10)
+    session = requests.Session()
+    response = session.get(url, headers=headers, timeout=20)
     response.raise_for_status()
 
     tree = html.fromstring(response.content)
 
     container_xpath = "/html/body/main/div[2]/section[2]/section"
-    containers = tree.xpath(container_xpath)
-
-    container = containers[0]
+    container = tree.xpath(container_xpath)[0]
 
     final_data = {}
 
     for section_name in TARGET_SECTIONS:
 
         section = container.xpath(f'.//section[@id="{section_name}"]')
-
         if not section:
             continue
 
-        section = section[0]
-        rows = section.xpath(".//tr")
+        rows = section[0].xpath(".//tr")
 
         for row in rows:
-
             cells = row.xpath("./th | ./td")
 
             if len(cells) >= 2:
