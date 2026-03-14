@@ -46,6 +46,9 @@ jobs:
       # -----------------------------
       - name: Groq Call
         run: |
+          echo "---- RAW FILE ----"
+          cat scraped.json
+          echo "------------------"
           DATA=$(jq -c . scraped.json)
           RESPONSE_1=$(curl -s -X POST "https://api.groq.com/openai/v1/chat/completions" \
             -H "Authorization: Bearer ${{ secrets.GROQ_API_KEY }}" \
