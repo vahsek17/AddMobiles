@@ -58,7 +58,7 @@ jobs:
                 }
               ]
             }')
-          eecho "$RESPONSE" | jq -r '.choices[0].message.content | fromjson' > mobileData.json
+          echo "$RESPONSE" | jq -r '.choices[0].message.content | fromjson' > mobileData.json
 
           echo "===== TRANSFORMED FIRESTORE JSON ====="
           cat mobileData.json
